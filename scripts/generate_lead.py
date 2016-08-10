@@ -19,18 +19,15 @@ LEAD_TEMPLATE = [
     ['A'],
     ['e'],
 ]
+SONG_LEAD_TEMPLATE = [[],[],[],[],[],[],]
 
 
 songs_folder = sys.argv[1]
 leads_folder = 'leads'
 
 
-def clean_file(file_to_open, songs_lead):
+def clean_file(file_to_open):
     for line in open(file_to_open):
-        if line.startswith('#'):
-            songs_lead.append(line)
-            continue
-
         if line.startswith('//') or not line.strip():
             continue
 
@@ -57,48 +54,63 @@ def add_song_lead(song_lead, notes):
             song_lead[index].append('-- ')
 
 
-song_files = []
-for (dirpath, dirnames, filenames) in walk(songs_folder):
-    song_files.extend(filenames)
-    break
+def fetch_song_files():
+    song_files = []
+    for (dirpath, dirnames, filenames) in walk(songs_folder):
+        song_files.extend(filenames)
+        break
+    return song_files
 
-for song_file in song_files:
+
+def generate_song_lead(line):
+    chunks = line.split()
+    song_lead = copy.deepcopy(SONG_LEAD_TEMPLATE)
+    for chunk in chunks:
+        notes = chunk.split('-')
+
+        operators = {n[0]: n[1:] for n in notes}
+
+        if len(operators) == 1:
+            operator = operators.keys()[0]
+            if operator not in TABS:
+                if operator == '*':
+                    count = int(operators.values()[0])
+                    for _ in xrange(count):
+                        song_lead = copy.deepcopy(song_lead)
+                        song_leads.append(song_lead)
+                    song_lead = copy.deepcopy(SONG_LEAD_TEMPLATE)
+                if operator == '.':
+                    for index in xrange(len(LEAD_TEMPLATE)):
+                        song_lead[index].append('. ')
+
+            else:
+                add_song_lead(song_lead, notes)
+
+        elif len(operators) > 1:
+            add_song_lead(song_lead, notes)
+        else:
+            print 'Corrupt line: {0}'.format(line)
+
+    return song_lead
+
+
+
+for song_file in fetch_song_files():
     file_to_open = "/".join([songs_folder, song_file])
     file_to_write = open("/".join([leads_folder, song_file]), 'w')
-
-    song_lead_template = [[],[],[],[],[],[],]
+    
     song_leads = []
-    for line in clean_file(file_to_open, song_leads):
-        chunks = line.split()
-        song_lead = copy.deepcopy(song_lead_template)
-        for chunk in chunks:
-            notes = chunk.split('-')
+    for line in clean_file(file_to_open):
 
-            operators = {n[0]: n[1:] for n in notes}
+        if line.startswith('#'):
+            # this is the song lyrics
+            song_leads.append(line)
+            continue
 
-            if len(operators) == 1:
-                operator = operators.keys()[0]
-                if operator not in TABS:
-                    if operator == '*':
-                        count = int(operators.values()[0])
-                        for _ in xrange(count):
-                            song_lead = copy.deepcopy(song_lead)
-                            song_leads.append(song_lead)
-                        song_lead = copy.deepcopy(song_lead_template)
-                    if operator == '.':
-                        for index in xrange(len(LEAD_TEMPLATE)):
-                            song_lead[index].append('. ')
+        song_lead = generate_song_lead(line)
 
-                else:
-                    add_song_lead(song_lead, notes)
-            elif len(operators) > 1:
-                add_song_lead(song_lead, notes)
-            else:
-                print 'Corrupt line: {0}'.format(line)
-
-        if song_lead != song_lead_template:
+        if song_lead != SONG_LEAD_TEMPLATE:
             song_leads.append(song_lead)
-
 
     for lead in song_leads:
         print_lead(lead)
