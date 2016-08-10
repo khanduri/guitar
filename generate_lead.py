@@ -1,6 +1,6 @@
 import sys
 import copy
-from os import walk
+import os
 
 
 TABS = {
@@ -22,7 +22,7 @@ LEAD_TEMPLATE = [
 SONG_LEAD_TEMPLATE = [[],[],[],[],[],[],]
 
 
-songs_folder = sys.argv[1]
+songs_folder = '.'
 leads_folder = 'leads'
 
 
@@ -54,12 +54,13 @@ def add_song_lead(song_lead, notes):
             song_lead[index].append('-- ')
 
 
-def fetch_song_files():
+def fetch_song_folders():
     song_files = []
-    for (dirpath, dirnames, filenames) in walk(songs_folder):
-        song_files.extend(filenames)
+    for (dirpath, dirnames, filenames) in os.walk(songs_folder):
+        song_files.extend(dirnames)
         break
-    return song_files
+
+    return [s for s in song_files if '.git' not in s]
 
 
 def generate_song_lead(line):
@@ -94,9 +95,9 @@ def generate_song_lead(line):
 
 
 
-for song_file in fetch_song_files():
-    file_to_open = "/".join([songs_folder, song_file])
-    file_to_write = open("/".join([leads_folder, song_file]), 'w')
+for song_folder in fetch_song_folders():
+    file_to_open = "/".join([song_folder, 'lead'])
+    file_to_write = open("/".join([song_folder, 'lead_tablature']), 'w')
     
     song_leads = []
     for line in clean_file(file_to_open):
