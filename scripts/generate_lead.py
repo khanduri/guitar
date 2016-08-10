@@ -73,16 +73,15 @@ def generate_song_lead(line):
         if len(operators) == 1:
             operator = operators.keys()[0]
             if operator not in TABS:
-                if operator == '*':
-                    count = int(operators.values()[0])
-                    for _ in xrange(count):
-                        song_lead = copy.deepcopy(song_lead)
-                        song_leads.append(song_lead)
-                    song_lead = copy.deepcopy(SONG_LEAD_TEMPLATE)
+                # if operator == '*':
+                #     count = int(operators.values()[0])
+                #     for _ in xrange(count):
+                #         song_lead = copy.deepcopy(song_lead)
+                #         song_leads.append(song_lead)
+                #     song_lead = copy.deepcopy(SONG_LEAD_TEMPLATE)
                 if operator == '.':
                     for index in xrange(len(LEAD_TEMPLATE)):
                         song_lead[index].append('. ')
-
             else:
                 add_song_lead(song_lead, notes)
 
