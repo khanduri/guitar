@@ -47,11 +47,17 @@ def print_lead(lead):
 
 def add_song_lead(song_lead, notes):
     note_map = {TABS[n[0]]: n[1:] for n in notes}
+    max_length = 0
+    temp_lead = []
     for index in xrange(len(LEAD_TEMPLATE)):
+        note = ''
         if index in note_map.keys():
-            song_lead[index].append('{0:->2} '.format(note_map[index]))
-        else:
-            song_lead[index].append('-- ')
+            note = note_map[index]
+            max_length = max(len(note), max_length)
+        temp_lead.append(note)
+
+    for index in xrange(len(LEAD_TEMPLATE)):
+        song_lead[index].append('{1:->{0}} '.format(max_length+1, temp_lead[index]))
 
 
 def fetch_song_folders():
