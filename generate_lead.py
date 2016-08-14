@@ -110,7 +110,7 @@ for song_folder in fetch_song_folders():
 
         if line.startswith('#'):
             # this is the song lyrics
-            song_leads.append(line)
+            song_leads.append(line.strip())
             continue
 
         song_lead = generate_song_lead(line)
