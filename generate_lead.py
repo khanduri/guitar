@@ -104,9 +104,12 @@ def generate_song_lead(line):
 for song_folder in fetch_song_folders():
     file_to_open = "/".join([song_folder, 'lead'])
     file_to_write = open("/".join([song_folder, 'lead_tablature']), 'w')
-    
+
     song_leads = []
     for line in clean_file(file_to_open):
+
+        if line.startswith('!'):
+            continue
 
         if line.startswith('#'):
             # this is the song lyrics
